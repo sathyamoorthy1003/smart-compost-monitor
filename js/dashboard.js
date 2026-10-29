@@ -1,5 +1,6 @@
 /* ============================================
-   DASHBOARD JS — Firebase + Charts + Gauges
+   DASHBOARD JS — Firebase + Charts + Alerts
+   Matches reference layout: 3 cards + chart + alerts table
    ============================================ */
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -20,16 +21,13 @@ document.addEventListener('DOMContentLoaded', () => {
   const dom = {
     tempValue: document.getElementById('tempValue'),
     moistureValue: document.getElementById('moistureValue'),
-    humidityValue: document.getElementById('humidityValue'),
     fanValue: document.getElementById('fanValue'),
     fanIcon: document.getElementById('fanIcon'),
     tempBadge: document.getElementById('tempBadge'),
     moistureBadge: document.getElementById('moistureBadge'),
-    humidityBadge: document.getElementById('humidityBadge'),
     fanBadge: document.getElementById('fanBadge'),
     tempCard: document.getElementById('tempCard'),
     moistureCard: document.getElementById('moistureCard'),
-    humidityCard: document.getElementById('humidityCard'),
     fanCard: document.getElementById('fanCard'),
     tempMarker: document.getElementById('tempMarker'),
     moistureMarker: document.getElementById('moistureMarker'),
@@ -139,54 +137,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // ---- Gauge Drawing ----
-  function drawGauge(canvasId, value, max, color, unit) {
-    const canvas = document.getElementById(canvasId);
-    if (!canvas) return;
-    const ctx2 = canvas.getContext('2d');
-    const w = canvas.width;
-    const h = canvas.height;
-    const cx = w / 2;
-    const cy = h / 2;
-    const r = Math.min(cx, cy) - 14;
-
-    ctx2.clearRect(0, 0, w, h);
-
-    // Background arc
-    const startAngle = 0.75 * Math.PI;
-    const endAngle = 2.25 * Math.PI;
-    const totalAngle = endAngle - startAngle;
-
-    ctx2.beginPath();
-    ctx2.arc(cx, cy, r, startAngle, endAngle, false);
-    ctx2.strokeStyle = '#e2e8f0';
-    ctx2.lineWidth = 12;
-    ctx2.lineCap = 'round';
-    ctx2.stroke();
-
-    // Value arc
-    const pct = Math.min(value / max, 1);
-    const valueAngle = startAngle + totalAngle * pct;
-    ctx2.beginPath();
-    ctx2.arc(cx, cy, r, startAngle, valueAngle, false);
-    ctx2.strokeStyle = color;
-    ctx2.lineWidth = 12;
-    ctx2.lineCap = 'round';
-    ctx2.stroke();
-
-    // Value text
-    ctx2.fillStyle = '#1e293b';
-    ctx2.font = 'bold 28px Inter, sans-serif';
-    ctx2.textAlign = 'center';
-    ctx2.textBaseline = 'middle';
-    ctx2.fillText(value !== null ? value.toFixed(1) : '--', cx, cy - 6);
-
-    // Unit text
-    ctx2.fillStyle = '#94a3b8';
-    ctx2.font = '12px Inter, sans-serif';
-    ctx2.fillText(unit, cx, cy + 18);
-  }
-
   // ---- Update Dashboard ----
   function updateDashboard(data) {
     if (!data) return;
@@ -205,7 +155,6 @@ document.addEventListener('DOMContentLoaded', () => {
     // Update values
     if (dom.tempValue) dom.tempValue.textContent = temp !== null && temp !== undefined ? temp.toFixed(1) : '--';
     if (dom.moistureValue) dom.moistureValue.textContent = moist !== null && moist !== undefined ? moist : '--';
-    if (dom.humidityValue) dom.humidityValue.textContent = hum !== null && hum !== undefined ? hum.toFixed(1) : '--';
     if (dom.fanValue) dom.fanValue.textContent = fan ? 'ON' : 'OFF';
 
     // Fan spinning
@@ -229,17 +178,7 @@ document.addEventListener('DOMContentLoaded', () => {
       updateBadge(dom.moistureBadge, dom.moistureCard, moist, 50, 65);
       if (dom.moistureMarker) dom.moistureMarker.style.left = Math.min(100, Math.max(0, moist)) + '%';
     }
-    if (hum !== null && hum !== undefined) {
-      if (dom.humidityBadge) {
-        dom.humidityBadge.textContent = hum.toFixed(0) + '%';
-        dom.humidityBadge.className = 'metric-badge in-range';
-      }
-    }
     if (dom.fanBadge) dom.fanBadge.textContent = 'Auto Mode';
-
-    // Gauges
-    drawGauge('tempGauge', temp, 60, '#ef4444', '°C');
-    drawGauge('moistureGauge', moist, 100, '#3b82f6', '%');
 
     // Add to history
     const timeStr = state.lastUpdate.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' });
@@ -371,24 +310,8 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // ---- Firebase Listener ----
-  // Try to listen to Firebase Realtime Database
-  // The ESP32 should write data to a path like /compost/current
-  // Adjust the path to match your ESP32's Firebase write path
   function startFirebaseListener() {
     try {
-      // Try common data paths — adjust to match your ESP32 code
-      const paths = [
-        'compost/current',
-        'compost',
-        'sensor',
-        'data',
-        'readings',
-        '/'
-      ];
-
-      let listenerAttached = false;
-
-      // Listen to the root to find data
       const rootRef = database.ref('/');
       rootRef.once('value', (snapshot) => {
         const val = snapshot.val();
@@ -396,24 +319,19 @@ document.addEventListener('DOMContentLoaded', () => {
           setConnectionStatus('online');
           console.log('Firebase data found:', val);
 
-          // Try to find sensor data in the structure
           let dataPath = '/';
           if (val.compost) dataPath = 'compost';
           else if (val.sensor) dataPath = 'sensor';
           else if (val.data) dataPath = 'data';
           else if (val.readings) dataPath = 'readings';
 
-          // Attach real-time listener
           database.ref(dataPath).on('value', (snap) => {
             const data = snap.val();
             if (data) {
-              // If data has nested 'current' key
               const sensorData = data.current || data;
               updateDashboard(sensorData);
             }
           });
-
-          listenerAttached = true;
         } else {
           console.log('No data in Firebase yet. Starting demo mode.');
           setConnectionStatus('offline');
@@ -425,7 +343,6 @@ document.addEventListener('DOMContentLoaded', () => {
         startDemoMode();
       });
 
-      // Connection state listener
       database.ref('.info/connected').on('value', (snap) => {
         if (snap.val() === true) {
           setConnectionStatus('online');
@@ -455,7 +372,7 @@ document.addEventListener('DOMContentLoaded', () => {
     ];
     renderAlerts();
 
-    // Seed initial chart data
+    // Seed initial chart data (24 hours)
     for (let h = 0; h <= 24; h += 1) {
       const hourStr = String(h).padStart(2, '0') + ':00';
       state.history.timestamps.push(hourStr);
@@ -495,7 +412,6 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // ---- Initialize ----
-  // Check if Firebase is loaded
   if (typeof firebase !== 'undefined' && typeof database !== 'undefined') {
     startFirebaseListener();
   } else {

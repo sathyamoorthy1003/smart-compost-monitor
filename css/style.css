@@ -953,3 +953,4 @@ img { max-width: 100%; height: auto; }
   .hero-stats { flex-direction: column; gap: 16px; }
   .preview-cards { grid-template-columns: 1fr; }
 }
+

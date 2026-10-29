@@ -92,6 +92,17 @@
   position: relative;
   z-index: 10;
 }
+.metrics-3col {
+  grid-template-columns: repeat(3, 1fr);
+}
+
+/* === ALERTS SECTION (full width, no gauges) === */
+.alerts-section {
+  margin-bottom: 24px;
+}
+.alerts-section .alerts-card {
+  width: 100%;
+}
 
 .metric-card {
   background: white;
@@ -393,14 +404,16 @@
 /* === RESPONSIVE === */
 @media (max-width: 1024px) {
   .metrics-grid { grid-template-columns: repeat(2, 1fr); }
+  .metrics-3col { grid-template-columns: repeat(2, 1fr); }
   .bottom-row { grid-template-columns: 1fr; }
   .sys-info-grid { grid-template-columns: repeat(2, 1fr); }
 }
 
 @media (max-width: 768px) {
   .dash-header-content { flex-direction: column; align-items: flex-start; }
-  .metrics-grid { grid-template-columns: 1fr; }
+  .metrics-grid, .metrics-3col { grid-template-columns: 1fr; }
   .chart-header { flex-direction: column; align-items: flex-start; }
   .chart-body { height: 240px; }
   .sys-info-grid { grid-template-columns: 1fr; }
 }
+

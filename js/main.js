@@ -112,3 +112,4 @@ animStyle.textContent = `
   }
 `;
 document.head.appendChild(animStyle);
+

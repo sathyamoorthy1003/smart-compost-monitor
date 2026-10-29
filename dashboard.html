@@ -25,9 +25,7 @@
         <li><a href="index.html" class="nav-link">Home</a></li>
         <li><a href="index.html#features" class="nav-link">Features</a></li>
         <li><a href="index.html#how-it-works" class="nav-link">How It Works</a></li>
-        <li><a href="index.html#components" class="nav-link">Components</a></li>
         <li><a href="dashboard.html" class="nav-link active">Live Dashboard</a></li>
-        <li><a href="index.html#contact" class="nav-link">Contact</a></li>
       </ul>
       <div class="nav-actions">
         <a href="dashboard.html" class="btn btn-primary btn-sm">
@@ -69,8 +67,8 @@
     </div>
 
     <div class="container">
-      <!-- Metric Cards -->
-      <div class="metrics-grid">
+      <!-- Metric Cards — matching reference: 3 cards -->
+      <div class="metrics-grid metrics-3col">
         <!-- Temperature -->
         <div class="metric-card" id="tempCard">
           <div class="metric-header">
@@ -125,28 +123,6 @@
           </div>
         </div>
 
-        <!-- Humidity -->
-        <div class="metric-card" id="humidityCard">
-          <div class="metric-header">
-            <span class="metric-label">Humidity</span>
-            <span class="metric-badge" id="humidityBadge">--</span>
-          </div>
-          <div class="metric-body">
-            <div class="metric-icon humidity-icon-lg">
-              <i class="fas fa-cloud-rain"></i>
-            </div>
-            <div class="metric-value-area">
-              <span class="metric-value" id="humidityValue">--</span>
-              <span class="metric-unit">%</span>
-            </div>
-          </div>
-          <div class="metric-footer">
-            <div class="metric-range">
-              <span>Air Humidity (DHT22)</span>
-            </div>
-          </div>
-        </div>
-
         <!-- Fan Status -->
         <div class="metric-card" id="fanCard">
           <div class="metric-header">
@@ -185,24 +161,8 @@
         </div>
       </div>
 
-      <!-- Gauges + Alerts Row -->
-      <div class="bottom-row">
-        <!-- Circular Gauges -->
-        <div class="gauges-card">
-          <h3><i class="fas fa-tachometer-alt"></i> Live Gauges</h3>
-          <div class="gauges-grid">
-            <div class="gauge-item">
-              <canvas id="tempGauge" width="160" height="160"></canvas>
-              <div class="gauge-label">Temperature</div>
-            </div>
-            <div class="gauge-item">
-              <canvas id="moistureGauge" width="160" height="160"></canvas>
-              <div class="gauge-label">Moisture</div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Recent Alerts -->
+      <!-- Recent Alerts — full width, matching reference -->
+      <div class="alerts-section">
         <div class="alerts-card">
           <h3><i class="fas fa-bell"></i> Recent Alerts</h3>
           <div class="alerts-table-wrapper">
@@ -280,3 +240,4 @@
   <script src="js/main.js"></script>
 </body>
 </html>
+

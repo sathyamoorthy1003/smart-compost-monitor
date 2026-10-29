@@ -1,30 +1,25 @@
 /*
   Smart Food-Waste-to-Compost Monitor
-  ESP32 + DHT22 + Soil Moisture + Fan Relay + Firebase
-  
-  This version adds Firebase Realtime Database support
-  so the web dashboard can read live sensor data.
-  
+  ESP32 + DHT22 + Soil Moisture + Fan Relay + Firebase (REST API)
+
+  Sends sensor data to Firebase Realtime Database using the built-in
+  HTTPClient library (no extra library needed).
+
   Libraries needed (install via Arduino Library Manager):
   - Adafruit GFX Library
   - Adafruit SSD1306
   - DHT sensor library (Adafruit)
-  - Firebase Arduino Client Library for ESP32 (by mobizt)
-    → Install: "Firebase Arduino Client Library for ESP32 and ESP8266"
+
+  Board: ESP32 DevKit V1  |  Core: esp32 v3.x
 */
 
 #include <WiFi.h>
 #include <WebServer.h>
+#include <HTTPClient.h>
 #include <Wire.h>
 #include <Adafruit_GFX.h>
 #include <Adafruit_SSD1306.h>
 #include <DHT.h>
-#include <Firebase_ESP_Client.h>
-
-// Provide the token generation process info
-#include "addons/TokenHelper.h"
-// Provide the RTDB payload printing info
-#include "addons/RTDBHelper.h"
 
 // ===== WiFi Credentials =====
 const char* WIFI_SSID = "Nothing";       // Your 2.4 GHz WiFi
@@ -34,9 +29,9 @@ const char* WIFI_PASS = "87654322";
 const char* AP_SSID = "Compost-Monitor";
 const char* AP_PASS = "12345678";
 
-// ===== Firebase Credentials =====
-#define API_KEY "AIzaSyCMs-JFDAz9eCPw-CleuhkzrW__xFw2NME"
-#define DATABASE_URL "https://bengaluru-climate-default-rtdb.asia-southeast1.firebasedatabase.app"
+// ===== Firebase REST API =====
+// Database URL (no trailing slash)
+const char* FIREBASE_HOST = "https://bengaluru-climate-default-rtdb.asia-southeast1.firebasedatabase.app";
 
 // ===== Pins =====
 #define DHTPIN 4
@@ -53,11 +48,6 @@ const char* AP_PASS = "12345678";
 DHT dht(DHTPIN, DHTTYPE);
 Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 WebServer server(80);
-
-// Firebase objects
-FirebaseData fbdo;
-FirebaseAuth auth;
-FirebaseConfig config;
 
 // Active LOW relay
 const int RELAY_ON = LOW;
@@ -76,7 +66,7 @@ const unsigned long READ_INTERVAL = 2000;
 unsigned long lastFirebaseUpdate = 0;
 const unsigned long FIREBASE_INTERVAL = 5000; // Send to Firebase every 5 seconds
 
-bool firebaseReady = false;
+bool firebaseOk = false;
 
 // ---------- Web page (local) ----------
 const char INDEX_HTML[] PROGMEM = R"rawliteral(
@@ -145,7 +135,7 @@ void handleData() {
   json += "\"hum\":" + (isnan(humidity) ? String("null") : String(humidity, 1)) + ",";
   json += "\"moisture\":" + String(moisturePercent) + ",";
   json += "\"fan\":" + String(fanState ? "true" : "false") + ",";
-  json += "\"firebase\":" + String(firebaseReady ? "true" : "false");
+  json += "\"firebase\":" + String(firebaseOk ? "true" : "false");
   json += "}";
   server.send(200, "application/json", json);
 }
@@ -197,60 +187,58 @@ void startWiFi() {
   delay(4000);
 }
 
-// ---------- Firebase ----------
-void startFirebase() {
+// ---------- Firebase (REST API via HTTPClient) ----------
+void sendToFirebase() {
   if (WiFi.status() != WL_CONNECTED) {
-    Serial.println("No WiFi — skipping Firebase init");
+    firebaseOk = false;
     return;
   }
 
-  config.api_key = API_KEY;
-  config.database_url = DATABASE_URL;
+  // Build JSON payload
+  String json = "{";
+  json += "\"temp\":" + (isnan(temperature) ? String("0") : String(temperature, 1)) + ",";
+  json += "\"hum\":" + (isnan(humidity) ? String("0") : String(humidity, 1)) + ",";
+  json += "\"moisture\":" + String(moisturePercent) + ",";
+  json += "\"fan\":" + String(fanState ? "true" : "false");
+  json += "}";
 
-  // Anonymous sign-in (matches your open rules)
-  auth.user.email = "";
-  auth.user.password = "";
+  // PUT to /compost/current.json (overwrites current readings)
+  HTTPClient http;
+  String url = String(FIREBASE_HOST) + "/compost/current.json";
 
-  // Token callback
-  config.token_status_callback = tokenStatusCallback;
+  http.begin(url);
+  http.addHeader("Content-Type", "application/json");
+  int httpCode = http.PUT(json);
 
-  Firebase.begin(&config, &auth);
-  Firebase.reconnectNetwork(true);
-
-  // Set max retry
-  fbdo.setResponseSize(1024);
-
-  Serial.println("Firebase initialized");
-  firebaseReady = true;
-}
-
-void sendToFirebase() {
-  if (!firebaseReady || WiFi.status() != WL_CONNECTED) return;
-
-  // Send current readings
-  FirebaseJson json;
-  json.set("temp", isnan(temperature) ? 0 : temperature);
-  json.set("hum", isnan(humidity) ? 0 : humidity);
-  json.set("moisture", moisturePercent);
-  json.set("fan", fanState);
-  json.set("timestamp/.sv", "timestamp"); // Server timestamp
-
-  if (Firebase.RTDB.setJSON(&fbdo, "/compost/current", &json)) {
+  if (httpCode == 200) {
     Serial.println("Firebase: data sent OK");
+    firebaseOk = true;
   } else {
-    Serial.print("Firebase error: ");
-    Serial.println(fbdo.errorReason());
+    Serial.print("Firebase error, HTTP code: ");
+    Serial.println(httpCode);
+    String response = http.getString();
+    Serial.println(response);
+    firebaseOk = false;
   }
+  http.end();
 
-  // Also push to history (for charting)
-  FirebaseJson histJson;
-  histJson.set("temp", isnan(temperature) ? 0 : temperature);
-  histJson.set("hum", isnan(humidity) ? 0 : humidity);
-  histJson.set("moisture", moisturePercent);
-  histJson.set("fan", fanState);
-  histJson.set("timestamp/.sv", "timestamp");
+  // Also POST to /compost/history.json (appends to history list)
+  HTTPClient http2;
+  String histUrl = String(FIREBASE_HOST) + "/compost/history.json";
 
-  Firebase.RTDB.pushJSON(&fbdo, "/compost/history", &histJson);
+  // Add a timestamp field (epoch millis from ESP32)
+  String histJson = "{";
+  histJson += "\"temp\":" + (isnan(temperature) ? String("0") : String(temperature, 1)) + ",";
+  histJson += "\"hum\":" + (isnan(humidity) ? String("0") : String(humidity, 1)) + ",";
+  histJson += "\"moisture\":" + String(moisturePercent) + ",";
+  histJson += "\"fan\":" + String(fanState ? "true" : "false") + ",";
+  histJson += "\"ts\":" + String(millis());
+  histJson += "}";
+
+  http2.begin(histUrl);
+  http2.addHeader("Content-Type", "application/json");
+  http2.POST(histJson);
+  http2.end();
 }
 
 // ---------- Sensors ----------
@@ -286,7 +274,7 @@ void printSerial() {
   Serial.print("Fan: ");
   Serial.println(fanState ? "ON" : "OFF");
   Serial.print("Firebase: ");
-  Serial.println(firebaseReady ? "Connected" : "Not connected");
+  Serial.println(firebaseOk ? "Connected" : "Not connected");
 }
 
 void updateOLED() {
@@ -313,7 +301,7 @@ void updateOLED() {
   display.println(fanState ? "ON" : "OFF");
 
   display.println("--------------------");
-  display.print(firebaseReady ? "FB:OK " : "FB:-- ");
+  display.print(firebaseOk ? "FB:OK " : "FB:-- ");
   display.println("192.168.4.1");
 
   display.display();
@@ -346,7 +334,6 @@ void setup() {
   delay(1000);
 
   startWiFi();
-  startFirebase();
 
   server.on("/", handleRoot);
   server.on("/data", handleData);

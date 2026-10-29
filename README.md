@@ -68,3 +68,4 @@ smart-compost-website/
 - Firebase Realtime Database (compat SDK)
 - Font Awesome icons
 - Google Fonts (Inter)
+
