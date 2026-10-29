@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Smart Compost Monitor — Real-Time Food Waste Composting</title>
+  <meta name="description" content="Smart Food-Waste-to-Compost Monitor — IoT-powered composting with real-time temperature, moisture, and aeration monitoring.">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌿</text></svg>">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <!-- Font Awesome for icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+<body>
+  <!-- ============ NAVIGATION ============ -->
+  <nav class="navbar" id="navbar">
+    <div class="nav-container">
+      <a href="index.html" class="nav-logo">
+        <span class="logo-icon">🌿</span>
+        <span class="logo-text">Smart<span class="logo-highlight">Compost</span></span>
+      </a>
+      <ul class="nav-links" id="navLinks">
+        <li><a href="#home" class="nav-link active">Home</a></li>
+        <li><a href="#features" class="nav-link">Features</a></li>
+        <li><a href="#how-it-works" class="nav-link">How It Works</a></li>
+        <li><a href="#components" class="nav-link">Components</a></li>
+        <li><a href="dashboard.html" class="nav-link">Live Dashboard</a></li>
+        <li><a href="#contact" class="nav-link">Contact</a></li>
+      </ul>
+      <div class="nav-actions">
+        <a href="dashboard.html" class="btn btn-primary btn-sm">
+          <i class="fas fa-chart-line"></i> Live Dashboard
+        </a>
+        <button class="nav-toggle" id="navToggle" aria-label="Toggle menu">
+          <span></span><span></span><span></span>
+        </button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ============ HERO ============ -->
+  <section class="hero" id="home">
+    <div class="hero-bg-shapes">
+      <div class="shape shape-1"></div>
+      <div class="shape shape-2"></div>
+      <div class="shape shape-3"></div>
+    </div>
+    <div class="container">
+      <div class="hero-content">
+        <div class="hero-badge">
+          <span class="badge-dot"></span>
+          IoT-Powered Composting System
+        </div>
+        <h1 class="hero-title">
+          Smart Food-Waste-to-<br>
+          <span class="gradient-text">Compost Monitor</span>
+        </h1>
+        <p class="hero-subtitle">
+          A compact composting system with real-time monitoring of temperature, moisture, and aeration. Turn your food waste into nutrient-rich compost — intelligently.
+        </p>
+        <div class="hero-actions">
+          <a href="dashboard.html" class="btn btn-primary btn-lg">
+            <i class="fas fa-satellite-dish"></i> View Live Dashboard
+          </a>
+          <a href="#how-it-works" class="btn btn-outline btn-lg">
+            <i class="fas fa-play-circle"></i> How It Works
+          </a>
+        </div>
+        <div class="hero-stats">
+          <div class="hero-stat">
+            <span class="stat-value">24/7</span>
+            <span class="stat-label">Real-time Monitoring</span>
+          </div>
+          <div class="hero-stat">
+            <span class="stat-value">3+</span>
+            <span class="stat-label">Sensor Types</span>
+          </div>
+          <div class="hero-stat">
+            <span class="stat-value">Auto</span>
+            <span class="stat-label">Fan Control</span>
+          </div>
+        </div>
+      </div>
+      <div class="hero-visual">
+        <div class="dashboard-preview">
+          <div class="preview-header">
+            <div class="preview-dots">
+              <span></span><span></span><span></span>
+            </div>
+            <span class="preview-title">Smart Compost Monitor</span>
+            <span class="preview-status"><span class="online-dot"></span> Online</span>
+          </div>
+          <div class="preview-body">
+            <div class="preview-cards">
+              <div class="preview-card temp">
+                <i class="fas fa-thermometer-half"></i>
+                <div class="preview-card-value" id="heroTemp">32.5 °C</div>
+                <div class="preview-card-label">Temperature</div>
+              </div>
+              <div class="preview-card moisture">
+                <i class="fas fa-tint"></i>
+                <div class="preview-card-value" id="heroMoisture">58 %</div>
+                <div class="preview-card-label">Moisture</div>
+              </div>
+              <div class="preview-card fan">
+                <i class="fas fa-fan fa-spin"></i>
+                <div class="preview-card-value" id="heroFan">ON</div>
+                <div class="preview-card-label">Fan Status</div>
+              </div>
+            </div>
+            <div class="preview-chart">
+              <svg viewBox="0 0 400 120" class="chart-svg">
+                <defs>
+                  <linearGradient id="tempGrad" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stop-color="#ef4444" stop-opacity="0.3"/>
+                    <stop offset="100%" stop-color="#ef4444" stop-opacity="0"/>
+                  </linearGradient>
+                  <linearGradient id="moistGrad" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stop-color="#3b82f6" stop-opacity="0.3"/>
+                    <stop offset="100%" stop-color="#3b82f6" stop-opacity="0"/>
+                  </linearGradient>
+                </defs>
+                <!-- Temperature area -->
+                <path d="M0,60 Q50,55 100,50 T200,45 T300,48 T400,50 L400,120 L0,120 Z" fill="url(#tempGrad)"/>
+                <path d="M0,60 Q50,55 100,50 T200,45 T300,48 T400,50" stroke="#ef4444" stroke-width="2" fill="none"/>
+                <!-- Moisture area -->
+                <path d="M0,80 Q50,75 100,70 T200,72 T300,68 T400,75 L400,120 L0,120 Z" fill="url(#moistGrad)"/>
+                <path d="M0,80 Q50,75 100,70 T200,72 T300,68 T400,75" stroke="#3b82f6" stroke-width="2" fill="none"/>
+              </svg>
+            </div>
+          </div>
+        </div>
+        <div class="floating-card float-1">
+          <i class="fas fa-leaf"></i> Eco-Friendly
+        </div>
+        <div class="floating-card float-2">
+          <i class="fas fa-wifi"></i> IoT Connected
+        </div>
+        <div class="floating-card float-3">
+          <i class="fas fa-microchip"></i> ESP32 Powered
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ FEATURES ============ -->
+  <section class="features" id="features">
+    <div class="container">
+      <div class="section-header">
+        <span class="section-badge">Features</span>
+        <h2 class="section-title">Everything You Need for <span class="gradient-text">Smart Composting</span></h2>
+        <p class="section-subtitle">Our IoT-powered system monitors every aspect of the composting process to ensure optimal conditions.</p>
+      </div>
+      <div class="features-grid">
+        <div class="feature-card">
+          <div class="feature-icon temp-icon">
+            <i class="fas fa-thermometer-half"></i>
+          </div>
+          <h3>Temperature Monitoring</h3>
+          <p>DHT22 sensor tracks compost temperature in real-time. Optimal range: 30–40 °C for aerobic decomposition.</p>
+          <div class="feature-range">
+            <span>Target: 30–40 °C</span>
+            <div class="range-bar"><div class="range-fill temp-fill" style="width:75%"></div></div>
+          </div>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon moisture-icon">
+            <i class="fas fa-tint"></i>
+          </div>
+          <h3>Moisture Sensing</h3>
+          <p>Capacitive soil moisture sensor measures compost moisture content. Target range: 50–65 % for ideal composting.</p>
+          <div class="feature-range">
+            <span>Target: 50–65 %</span>
+            <div class="range-bar"><div class="range-fill moisture-fill" style="width:60%"></div></div>
+          </div>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon fan-icon">
+            <i class="fas fa-fan"></i>
+          </div>
+          <h3>Automatic Aeration</h3>
+          <p>12V DC fan with mesh filter, controlled via MOSFET relay. Auto-activates when temperature exceeds 30 °C threshold.</p>
+          <div class="feature-tag">
+            <span class="tag tag-green"><i class="fas fa-cog"></i> Auto Mode</span>
+          </div>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon cloud-icon">
+            <i class="fas fa-cloud"></i>
+          </div>
+          <h3>Cloud Dashboard</h3>
+          <p>Firebase Realtime Database streams sensor data to this web dashboard with live charts, alerts, and historical trends.</p>
+          <div class="feature-tag">
+            <span class="tag tag-blue"><i class="fas fa-wifi"></i> Real-time</span>
+          </div>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon display-icon">
+            <i class="fas fa-desktop"></i>
+          </div>
+          <h3>OLED Display</h3>
+          <p>On-device 0.96" OLED screen shows live readings, IP address, and system status without needing a phone or computer.</p>
+          <div class="feature-tag">
+            <span class="tag tag-purple"><i class="fas fa-eye"></i> Local View</span>
+          </div>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon alert-icon">
+            <i class="fas fa-bell"></i>
+          </div>
+          <h3>Smart Alerts</h3>
+          <p>Automatic alerts when temperature or moisture goes out of range. Track events with timestamped alert history.</p>
+          <div class="feature-tag">
+            <span class="tag tag-orange"><i class="fas fa-exclamation-triangle"></i> Alerts</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ HOW IT WORKS ============ -->
+  <section class="how-it-works" id="how-it-works">
+    <div class="container">
+      <div class="section-header">
+        <span class="section-badge">Process</span>
+        <h2 class="section-title">How It <span class="gradient-text">Works</span></h2>
+        <p class="section-subtitle">From food waste to nutrient-rich compost — automated and monitored every step of the way.</p>
+      </div>
+      <div class="steps-timeline">
+        <div class="step">
+          <div class="step-number">01</div>
+          <div class="step-content">
+            <div class="step-icon"><i class="fas fa-microchip"></i></div>
+            <h3>Sensors Read Data</h3>
+            <p>DHT22 measures temperature & humidity. Capacitive soil sensor measures moisture content every 2 seconds.</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-number">02</div>
+          <div class="step-content">
+            <div class="step-icon"><i class="fas fa-brain"></i></div>
+            <h3>ESP32 Processes</h3>
+            <p>Microcontroller reads sensor data, determines if aeration is needed, and controls the relay-driven fan.</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-number">03</div>
+          <div class="step-content">
+            <div class="step-icon"><i class="fas fa-cloud-upload-alt"></i></div>
+            <h3>Data Sent to Cloud</h3>
+            <p>Sensor readings are pushed to Firebase Realtime Database via Wi-Fi for cloud storage and remote access.</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-number">04</div>
+          <div class="step-content">
+            <div class="step-icon"><i class="fas fa-chart-area"></i></div>
+            <h3>Live Dashboard</h3>
+            <p>This website pulls real-time data from Firebase and displays interactive charts, gauges, and alerts.</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-number">05</div>
+          <div class="step-content">
+            <div class="step-icon"><i class="fas fa-fan"></i></div>
+            <h3>Auto Aeration</h3>
+            <p>When temperature exceeds 30 °C, the fan turns on automatically to maintain optimal composting conditions.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ SYSTEM ARCHITECTURE ============ -->
+  <section class="architecture" id="architecture">
+    <div class="container">
+      <div class="section-header">
+        <span class="section-badge">Architecture</span>
+        <h2 class="section-title">System <span class="gradient-text">Block Diagram</span></h2>
+        <p class="section-subtitle">A complete signal flow from sensors to cloud dashboard.</p>
+      </div>
+      <div class="arch-diagram">
+        <div class="arch-column sensors">
+          <h4 class="arch-col-title"><i class="fas fa-satellite-dish"></i> Sensors (Input)</h4>
+          <div class="arch-card">
+            <i class="fas fa-thermometer-half"></i>
+            <span>DHT22 — Temp & Humidity</span>
+          </div>
+          <div class="arch-card">
+            <i class="fas fa-tint"></i>
+            <span>Capacitive Soil Moisture</span>
+          </div>
+          <div class="arch-card optional">
+            <i class="fas fa-smog"></i>
+            <span>MQ135 Gas (Optional)</span>
+          </div>
+          <div class="arch-card optional">
+            <i class="fas fa-weight-hanging"></i>
+            <span>Load Cell (Optional)</span>
+          </div>
+        </div>
+        <div class="arch-arrow"><i class="fas fa-arrow-right"></i></div>
+        <div class="arch-column processor">
+          <h4 class="arch-col-title"><i class="fas fa-microchip"></i> Microcontroller</h4>
+          <div class="arch-card main">
+            <i class="fas fa-microchip"></i>
+            <span>ESP32 (Wi-Fi)</span>
+          </div>
+          <ul class="arch-list">
+            <li>Reads sensor data</li>
+            <li>Calculates status</li>
+            <li>Controls aeration fan</li>
+            <li>Displays on OLED</li>
+            <li>Sends data to cloud</li>
+          </ul>
+        </div>
+        <div class="arch-arrow"><i class="fas fa-arrow-right"></i></div>
+        <div class="arch-column outputs">
+          <h4 class="arch-col-title"><i class="fas fa-cogs"></i> Outputs / Actuation</h4>
+          <div class="arch-card">
+            <i class="fas fa-desktop"></i>
+            <span>OLED Display</span>
+          </div>
+          <div class="arch-card">
+            <i class="fas fa-fan"></i>
+            <span>Aeration Fan (12V DC)</span>
+          </div>
+          <div class="arch-card">
+            <i class="fas fa-bell"></i>
+            <span>Buzzer / LED Alert</span>
+          </div>
+          <div class="arch-card">
+            <i class="fas fa-cloud"></i>
+            <span>Wi-Fi / Cloud Dashboard</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ COMPONENTS ============ -->
+  <section class="components" id="components">
+    <div class="container">
+      <div class="section-header">
+        <span class="section-badge">Hardware</span>
+        <h2 class="section-title">Components <span class="gradient-text">List</span></h2>
+        <p class="section-subtitle">Everything you need to build the Smart Compost Monitor.</p>
+      </div>
+      <div class="components-table-wrapper">
+        <table class="components-table">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Component</th>
+              <th>Example / Model</th>
+              <th>Approx. Cost (INR)</th>
+              <th>Usage / Function</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>1</td>
+              <td><i class="fas fa-microchip"></i> ESP32 Dev Board</td>
+              <td>ESP32 DevKit V1</td>
+              <td>₹300 – 600</td>
+              <td>Reads sensors, controls fan, sends data to cloud</td>
+            </tr>
+            <tr>
+              <td>2</td>
+              <td><i class="fas fa-thermometer-half"></i> Temp & Humidity Sensor</td>
+              <td>DHT22</td>
+              <td>₹300 – 800</td>
+              <td>Measures internal temperature and humidity</td>
+            </tr>
+            <tr>
+              <td>3</td>
+              <td><i class="fas fa-tint"></i> Soil Moisture Sensor</td>
+              <td>Capacitive v1.2</td>
+              <td>₹300 – 600</td>
+              <td>Measures moisture content (soil/compost)</td>
+            </tr>
+            <tr>
+              <td>4</td>
+              <td><i class="fas fa-fan"></i> 12V DC Fan</td>
+              <td>PC cooling fan + filter</td>
+              <td>₹300 – 500</td>
+              <td>Provides aeration to maintain oxygen</td>
+            </tr>
+            <tr>
+              <td>5</td>
+              <td><i class="fas fa-toggle-on"></i> MOSFET / Relay Module</td>
+              <td>IRF540N / Relay Board</td>
+              <td>₹100 – 300</td>
+              <td>Controls fan from ESP32</td>
+            </tr>
+            <tr>
+              <td>6</td>
+              <td><i class="fas fa-tv"></i> OLED Display</td>
+              <td>0.96" SSD1306</td>
+              <td>₹150 – 400</td>
+              <td>Local display of readings and status</td>
+            </tr>
+            <tr>
+              <td>7</td>
+              <td><i class="fas fa-plug"></i> Power Supply</td>
+              <td>5V + 12V adapter</td>
+              <td>₹300 – 800</td>
+              <td>Power for electronics and fan</td>
+            </tr>
+            <tr>
+              <td>8</td>
+              <td><i class="fas fa-box"></i> Compost Vessel</td>
+              <td>20–30L plastic bin</td>
+              <td>₹400 – 1,000</td>
+              <td>Composting chamber (airtight lid)</td>
+            </tr>
+            <tr>
+              <td>9</td>
+              <td><i class="fas fa-filter"></i> Mesh / Charcoal Filter</td>
+              <td>Mesh + activated carbon</td>
+              <td>₹200 – 500</td>
+              <td>Reduces odour from exhaust</td>
+            </tr>
+          </tbody>
+          <tfoot>
+            <tr>
+              <td colspan="3"><strong>Estimated Total</strong></td>
+              <td colspan="2"><strong>₹2,350 – 5,500</strong></td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ TESTING PLAN ============ -->
+  <section class="testing" id="testing">
+    <div class="container">
+      <div class="section-header">
+        <span class="section-badge">Validation</span>
+        <h2 class="section-title">Testing & <span class="gradient-text">Evaluation Plan</span></h2>
+      </div>
+      <div class="testing-grid">
+        <div class="test-card">
+          <div class="test-num">1</div>
+          <h4>Setup</h4>
+          <p>Assemble system with known amount of food waste (e.g., vegetable waste + dry leaves).</p>
+        </div>
+        <div class="test-card">
+          <div class="test-num">2</div>
+          <h4>Calibration</h4>
+          <p>Verify temperature and moisture sensors (compare with reference thermometer and known wet/dry samples).</p>
+        </div>
+        <div class="test-card">
+          <div class="test-num">3</div>
+          <h4>Controlled Tests</h4>
+          <p>Run two cases — (A) without aeration (fan OFF), (B) with aeration (fan ON/auto).</p>
+        </div>
+        <div class="test-card">
+          <div class="test-num">4</div>
+          <h4>Record Data</h4>
+          <p>Log temperature and moisture for several days continuously.</p>
+        </div>
+        <div class="test-card">
+          <div class="test-num">5</div>
+          <h4>Compare</h4>
+          <p>Show how aeration and moisture affect composting conditions with graphs.</p>
+        </div>
+        <div class="test-card">
+          <div class="test-num">6</div>
+          <h4>Demonstrate</h4>
+          <p>Live display data and graphs (local and web dashboard).</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ CTA ============ -->
+  <section class="cta-section">
+    <div class="container">
+      <div class="cta-content">
+        <h2>Ready to Monitor Your Compost?</h2>
+        <p>Access the live dashboard to see real-time sensor data from the composting system.</p>
+        <a href="dashboard.html" class="btn btn-primary btn-lg">
+          <i class="fas fa-chart-line"></i> Open Live Dashboard
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ FOOTER ============ -->
+  <footer class="footer" id="contact">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-col">
+          <a href="index.html" class="footer-logo">
+            <span class="logo-icon">🌿</span>
+            <span class="logo-text">Smart<span class="logo-highlight">Compost</span></span>
+          </a>
+          <p>A compact IoT composting system with real-time monitoring of temperature, moisture, and aeration.</p>
+          <p class="footer-project">Bengaluru Climate Project</p>
+        </div>
+        <div class="footer-col">
+          <h4>Quick Links</h4>
+          <ul>
+            <li><a href="#home">Home</a></li>
+            <li><a href="#features">Features</a></li>
+            <li><a href="#how-it-works">How It Works</a></li>
+            <li><a href="#components">Components</a></li>
+            <li><a href="dashboard.html">Live Dashboard</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h4>Technology</h4>
+          <ul>
+            <li><a href="#">ESP32 Microcontroller</a></li>
+            <li><a href="#">DHT22 Sensor</a></li>
+            <li><a href="#">Firebase Realtime DB</a></li>
+            <li><a href="#">Chart.js Visualization</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h4>Project Info</h4>
+          <p>Smart Food-Waste-to-Compost Monitor</p>
+          <p>Proof of Concept — Process Monitoring</p>
+          <div class="footer-socials">
+            <a href="#" aria-label="GitHub"><i class="fab fa-github"></i></a>
+            <a href="#" aria-label="Email"><i class="fas fa-envelope"></i></a>
+          </div>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>&copy; 2026 Smart Compost Monitor — Bengaluru Climate Project. All rights reserved.</p>
+      </div>
+    </div>
+  </footer>
+
+  <script src="js/main.js"></script>
+</body>
+</html>

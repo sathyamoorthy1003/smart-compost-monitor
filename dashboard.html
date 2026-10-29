@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Live Dashboard — Smart Compost Monitor</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌿</text></svg>">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/dashboard.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+</head>
+<body class="dashboard-page">
+  <!-- ============ NAVIGATION ============ -->
+  <nav class="navbar" id="navbar">
+    <div class="nav-container">
+      <a href="index.html" class="nav-logo">
+        <span class="logo-icon">🌿</span>
+        <span class="logo-text">Smart<span class="logo-highlight">Compost</span></span>
+      </a>
+      <ul class="nav-links" id="navLinks">
+        <li><a href="index.html" class="nav-link">Home</a></li>
+        <li><a href="index.html#features" class="nav-link">Features</a></li>
+        <li><a href="index.html#how-it-works" class="nav-link">How It Works</a></li>
+        <li><a href="index.html#components" class="nav-link">Components</a></li>
+        <li><a href="dashboard.html" class="nav-link active">Live Dashboard</a></li>
+        <li><a href="index.html#contact" class="nav-link">Contact</a></li>
+      </ul>
+      <div class="nav-actions">
+        <a href="dashboard.html" class="btn btn-primary btn-sm">
+          <i class="fas fa-chart-line"></i> Live Dashboard
+        </a>
+        <button class="nav-toggle" id="navToggle" aria-label="Toggle menu">
+          <span></span><span></span><span></span>
+        </button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ============ DASHBOARD ============ -->
+  <main class="dashboard">
+    <!-- Dashboard Header -->
+    <div class="dash-header">
+      <div class="container">
+        <div class="dash-header-content">
+          <div class="dash-title-area">
+            <div class="dash-icon">
+              <i class="fas fa-seedling"></i>
+            </div>
+            <div>
+              <h1 class="dash-title">Smart Compost Monitor</h1>
+              <p class="dash-subtitle">Real-time composting data from Firebase</p>
+            </div>
+          </div>
+          <div class="dash-status-area">
+            <div class="connection-status" id="connectionStatus">
+              <span class="status-dot offline"></span>
+              <span class="status-text">Connecting…</span>
+            </div>
+            <div class="dash-datetime" id="dashDatetime">
+              --
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="container">
+      <!-- Metric Cards -->
+      <div class="metrics-grid">
+        <!-- Temperature -->
+        <div class="metric-card" id="tempCard">
+          <div class="metric-header">
+            <span class="metric-label">Temperature</span>
+            <span class="metric-badge" id="tempBadge">--</span>
+          </div>
+          <div class="metric-body">
+            <div class="metric-icon temp-icon-lg">
+              <i class="fas fa-thermometer-half"></i>
+            </div>
+            <div class="metric-value-area">
+              <span class="metric-value" id="tempValue">--</span>
+              <span class="metric-unit">°C</span>
+            </div>
+          </div>
+          <div class="metric-footer">
+            <div class="metric-range">
+              <span>Target: 30–40 °C</span>
+              <div class="range-indicator">
+                <div class="range-track">
+                  <div class="range-marker" id="tempMarker" style="left:50%"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Moisture -->
+        <div class="metric-card" id="moistureCard">
+          <div class="metric-header">
+            <span class="metric-label">Moisture</span>
+            <span class="metric-badge" id="moistureBadge">--</span>
+          </div>
+          <div class="metric-body">
+            <div class="metric-icon moisture-icon-lg">
+              <i class="fas fa-tint"></i>
+            </div>
+            <div class="metric-value-area">
+              <span class="metric-value" id="moistureValue">--</span>
+              <span class="metric-unit">%</span>
+            </div>
+          </div>
+          <div class="metric-footer">
+            <div class="metric-range">
+              <span>Target: 50–65 %</span>
+              <div class="range-indicator">
+                <div class="range-track">
+                  <div class="range-marker" id="moistureMarker" style="left:50%"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Humidity -->
+        <div class="metric-card" id="humidityCard">
+          <div class="metric-header">
+            <span class="metric-label">Humidity</span>
+            <span class="metric-badge" id="humidityBadge">--</span>
+          </div>
+          <div class="metric-body">
+            <div class="metric-icon humidity-icon-lg">
+              <i class="fas fa-cloud-rain"></i>
+            </div>
+            <div class="metric-value-area">
+              <span class="metric-value" id="humidityValue">--</span>
+              <span class="metric-unit">%</span>
+            </div>
+          </div>
+          <div class="metric-footer">
+            <div class="metric-range">
+              <span>Air Humidity (DHT22)</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Fan Status -->
+        <div class="metric-card" id="fanCard">
+          <div class="metric-header">
+            <span class="metric-label">Fan Status</span>
+            <span class="metric-badge" id="fanBadge">Auto Mode</span>
+          </div>
+          <div class="metric-body">
+            <div class="metric-icon fan-icon-lg" id="fanIcon">
+              <i class="fas fa-fan"></i>
+            </div>
+            <div class="metric-value-area">
+              <span class="metric-value" id="fanValue">--</span>
+            </div>
+          </div>
+          <div class="metric-footer">
+            <div class="metric-range">
+              <span>Auto ON when temp &gt; 30 °C</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Charts Row -->
+      <div class="charts-row">
+        <div class="chart-card chart-large">
+          <div class="chart-header">
+            <h3><i class="fas fa-chart-area"></i> Temperature & Moisture (Last 24 Hours)</h3>
+            <div class="chart-legend">
+              <span class="legend-item"><span class="legend-dot temp-dot"></span> Temperature (°C)</span>
+              <span class="legend-item"><span class="legend-dot moisture-dot"></span> Moisture (%)</span>
+            </div>
+          </div>
+          <div class="chart-body">
+            <canvas id="mainChart"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <!-- Gauges + Alerts Row -->
+      <div class="bottom-row">
+        <!-- Circular Gauges -->
+        <div class="gauges-card">
+          <h3><i class="fas fa-tachometer-alt"></i> Live Gauges</h3>
+          <div class="gauges-grid">
+            <div class="gauge-item">
+              <canvas id="tempGauge" width="160" height="160"></canvas>
+              <div class="gauge-label">Temperature</div>
+            </div>
+            <div class="gauge-item">
+              <canvas id="moistureGauge" width="160" height="160"></canvas>
+              <div class="gauge-label">Moisture</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Recent Alerts -->
+        <div class="alerts-card">
+          <h3><i class="fas fa-bell"></i> Recent Alerts</h3>
+          <div class="alerts-table-wrapper">
+            <table class="alerts-table">
+              <thead>
+                <tr>
+                  <th>Time</th>
+                  <th>Event</th>
+                  <th>Value</th>
+                </tr>
+              </thead>
+              <tbody id="alertsBody">
+                <!-- Populated by JS -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- System Info -->
+      <div class="system-info-card">
+        <h3><i class="fas fa-info-circle"></i> System Information</h3>
+        <div class="sys-info-grid">
+          <div class="sys-info-item">
+            <span class="sys-label">Microcontroller</span>
+            <span class="sys-value">ESP32 DevKit V1</span>
+          </div>
+          <div class="sys-info-item">
+            <span class="sys-label">Temp Sensor</span>
+            <span class="sys-value">DHT22</span>
+          </div>
+          <div class="sys-info-item">
+            <span class="sys-label">Moisture Sensor</span>
+            <span class="sys-value">Capacitive v1.2</span>
+          </div>
+          <div class="sys-info-item">
+            <span class="sys-label">Fan Threshold</span>
+            <span class="sys-value">30.0 °C</span>
+          </div>
+          <div class="sys-info-item">
+            <span class="sys-label">Read Interval</span>
+            <span class="sys-value">2 seconds</span>
+          </div>
+          <div class="sys-info-item">
+            <span class="sys-label">Database</span>
+            <span class="sys-value">Firebase RTDB</span>
+          </div>
+          <div class="sys-info-item">
+            <span class="sys-label">DB Location</span>
+            <span class="sys-value">Singapore (asia-southeast1)</span>
+          </div>
+          <div class="sys-info-item">
+            <span class="sys-label">Display</span>
+            <span class="sys-value">0.96" SSD1306 OLED</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer footer-compact">
+    <div class="container">
+      <div class="footer-bottom">
+        <p>&copy; 2026 Smart Compost Monitor — Bengaluru Climate Project. All rights reserved.</p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Firebase SDK (compat for simplicity in static site) -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+  <script src="js/firebase-config.js"></script>
+  <script src="js/dashboard.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>
